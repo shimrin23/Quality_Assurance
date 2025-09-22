@@ -1,45 +1,33 @@
 package com.backend.todolist.config;
 
-import java.security.Principal;
-import java.util.Collections;
-import java.util.List;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import springfox.documentation.builders.ParameterBuilder;
+import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.schema.ModelRef;
-import springfox.documentation.service.Parameter;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
+/**
+ * Configures Swagger/Springfox for API documentation.
+ * <p>
+ * NOTE: The IDE may report this class and its beans as "unused". This is expected.
+ * The Spring Framework discovers and uses these components at runtime via component scanning and auto-configuration.
+ */
 @Configuration
 @EnableSwagger2
 public class SwaggerConfig {
-	
-	@Bean
-	public Docket todoApi() {
-		return new Docket(DocumentationType.SWAGGER_2)
-				.forCodeGeneration(true)
-				.ignoredParameterTypes(Principal.class)
-		        .globalOperationParameters(globalParameterList()) 
-				.select()
-                .apis(RequestHandlerSelectors.basePackage("com.backend.todolist"))
-                .build();
-	}
-	
-	private List<Parameter> globalParameterList() {
-	    Parameter authTokenHeader =
-	        new ParameterBuilder()
-	            .name("Authorization") // name of the header
-	            .modelRef(new ModelRef("string"))
-	            .required(false)
-	            .parameterType("header")
-	            .description("Bearer <token>")
-	            .build();
 
-	    return Collections.singletonList(authTokenHeader);
-	  }
+    /**
+     * Creates the primary configuration bean for Swagger.
+     * @return A Docket instance configured for the application's API.
+     */
+    @Bean
+    public Docket api() {
+        return new Docket(DocumentationType.SWAGGER_2)
+            .select()
+            .apis(RequestHandlerSelectors.any())
+            .paths(PathSelectors.any())
+            .build();
+    }
 }
