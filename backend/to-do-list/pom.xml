@@ -116,6 +116,39 @@
 		<artifactId>junit-jupiter</artifactId>
 		<scope>test</scope>
 	</dependency>
+
+	<!-- ✅ Selenium UI testing -->
+	<dependency>
+		<groupId>org.seleniumhq.selenium</groupId>
+		<artifactId>selenium-java</artifactId>
+		<scope>test</scope>
+	</dependency>
+	<dependency>
+		<groupId>io.github.bonigarcia</groupId>
+		<artifactId>webdrivermanager</artifactId>
+		<version>5.9.2</version>
+		<scope>test</scope>
+		<exclusions>
+			<!-- Prevent older Selenium modules from being brought transitively -->
+			<exclusion>
+				<groupId>org.seleniumhq.selenium</groupId>
+				<artifactId>*</artifactId>
+			</exclusion>
+		</exclusions>
+	</dependency>
+	<!-- ✅ Ensure compatible HttpClient5 for WebDriverManager -->
+	<dependency>
+		<groupId>org.apache.httpcomponents.client5</groupId>
+		<artifactId>httpclient5</artifactId>
+		<version>5.3.1</version>
+		<scope>test</scope>
+	</dependency>
+	<dependency>
+		<groupId>org.apache.httpcomponents.core5</groupId>
+		<artifactId>httpcore5</artifactId>
+		<version>5.2.4</version>
+		<scope>test</scope>
+	</dependency>
 </dependencies>
 
 	<dependencyManagement>
@@ -127,6 +160,14 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
+			<!-- ✅ Pin Selenium versions via BOM to prevent mixed client/driver artifacts -->
+			<dependency>
+				<groupId>org.seleniumhq.selenium</groupId>
+				<artifactId>selenium-bom</artifactId>
+				<version>4.23.0</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -135,6 +176,21 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<!-- ✅ Ensure JUnit 5 tests run correctly in CI and locally -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.2.5</version>
+				<configuration>
+					<useModulePath>false</useModulePath>
+					<systemPropertyVariables>
+						<!-- Allow overriding base URL and credentials in CI -->
+						<baseUrl>${baseUrl}</baseUrl>
+						<ui.username>${ui.username}</ui.username>
+						<ui.password>${ui.password}</ui.password>
+					</systemPropertyVariables>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
