@@ -22,6 +22,7 @@ public class TestWebConfig {
      */
     @Bean
     @Primary
+    @SuppressWarnings("unused")
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOriginPatterns(List.of("*"));
