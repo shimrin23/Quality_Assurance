@@ -20,11 +20,11 @@ public class StepDefinitions {
 
     @When("I add a task named {string}")
     public void i_add_a_task_named(String name) {
-        service.addTask(name);
+        service.addTask(new Task(name));
     }
 
     @Then("the task list should contain {int} task")
     public void the_task_list_should_contain_task(Integer count) {
-        assertEquals(count, service.getTaskCount());
+        assertEquals(count.longValue(), service.getTaskCount());
     }
 }

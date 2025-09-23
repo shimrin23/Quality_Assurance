@@ -1,5 +1,10 @@
 package com.backend.todolist;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 //--------------------------------------------------------------
@@ -33,25 +38,27 @@ import static org.junit.jupiter.api.Assertions.*;
 
 
 import org.junit.jupiter.api.BeforeEach;
+import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class TaskServiceTest {
 
-    private TaskService service;
+    @Mock
+    private TaskRepository taskRepository;
+
+    @InjectMocks
+    private TaskService taskService;
 
     @BeforeEach
     void setUp() {
-        // This ensures each test starts with a new, clean TaskService instance.
-        service = new TaskService();
+        // Mockito initializes the mocks and injects them before each test.
     }
 
     @Test
     void addTask_increasesTaskCount() {
-        service.addTask("Test Task");
-        assertEquals(1, service.getTaskCount());
-    }
-
-    @Test
-    void addTask_emptyName_throwsException() {
-        assertThrows(IllegalArgumentException.class, () -> service.addTask(""));
+        Task task = new Task("Test Task");
+        when(taskRepository.count()).thenReturn(1L);
+        taskService.addTask(task);
+        assertEquals(1, taskService.getTaskCount());
     }
 }

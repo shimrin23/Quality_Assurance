@@ -47,8 +47,8 @@ public class UserService {
 	        String token = jwtTokenGenerator.createToken(_user.getUsername(), _user.getRoleAsList());
 	        
 			return new UserSignupResponse(username, token);
-		} catch (AuthenticationException e) {
-            throw new BadCredentialsException("Invalid username/password");
+		} catch (Exception e) {
+            throw new BadRequestException("Something happened");
         }
 	}
 	
