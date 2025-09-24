@@ -1,4 +1,4 @@
-package com.backend.todolist.config;
+package com.backend.todolist.bdd;
 
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;

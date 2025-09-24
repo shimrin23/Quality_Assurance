@@ -1,4 +1,4 @@
-package com.backend.todolist;
+package com.backend.todolist.tdd;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,10 +11,3 @@ class ToDoListApplicationTests {
 	}
 
 }
-
-
-
-
-
-
-

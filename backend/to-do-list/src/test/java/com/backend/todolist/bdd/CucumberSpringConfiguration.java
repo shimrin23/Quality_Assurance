@@ -1,4 +1,4 @@
-package com.backend.todolist.config;
+package com.backend.todolist.bdd;
 
 import io.cucumber.spring.CucumberContextConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
