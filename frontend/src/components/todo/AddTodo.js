@@ -51,6 +51,7 @@ function AddTodo({isAuthenticated, setIsAuthenticated}) {
     return <div className="alert alert-success alert-dismissible fade show" role="alert" style={{borderRadius: '15px', border: 'none', boxShadow: '0 4px 6px rgba(0,0,0,0.1)'}}>
       <strong>🎉 Success!</strong> {message}
       <button type="button" className="btn-close" data-bs-dismiss="alert"></button>
+      <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div> 
   }
 
@@ -62,6 +63,7 @@ function AddTodo({isAuthenticated, setIsAuthenticated}) {
     return <div className="alert alert-danger alert-dismissible fade show" role="alert" style={{borderRadius: '15px', border: 'none', boxShadow: '0 4px 6px rgba(0,0,0,0.1)'}}>
       <strong>⚠️ Error:</strong> {errorMessage}
       <button type="button" className="btn-close" data-bs-dismiss="alert"></button>
+      <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
   }
 
@@ -79,8 +81,11 @@ function AddTodo({isAuthenticated, setIsAuthenticated}) {
 							<form onSubmit={onSubmit}>
 								<div className="mb-4">
 									<label className="form-label fw-bold">📝 Title</label>
+									<label htmlFor="todoTitle" className="form-label fw-bold">📝 Title</label>
 									<input 
 										value={title} 
+										id="todoTitle"
+										value={title}
 										onChange={e => setTitle(e.target.value)} 
 										placeholder="Enter todo title..."
 										className="form-control form-control-lg"
@@ -91,8 +96,11 @@ function AddTodo({isAuthenticated, setIsAuthenticated}) {
 								
 								<div className="mb-4">
 									<label className="form-label fw-bold"> Target Date</label>
+									<label htmlFor="targetDate" className="form-label fw-bold"> Target Date</label>
 									<input 
 										value={targetDate} 
+										id="targetDate"
+										value={targetDate}
 										type="date" 
 										onChange={e => setTargetDate(e.target.value)} 
 										className="form-control form-control-lg"

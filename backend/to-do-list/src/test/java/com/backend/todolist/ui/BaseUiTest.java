@@ -68,15 +68,17 @@ public abstract class BaseUiTest {
 
     /**
      * Wait for a stable "Add Task" control on the dashboard/home page.
-     * Tries multiple robust locators: a visible, clickable button or link with text "Add Task",
-     * or a data-testid/data-test attribute commonly used for testing hooks.
+     * Tries multiple robust locators based on the application's HTML.
      */
     protected WebElement waitForAddTaskButton(WebDriverWait wait) {
         By[] candidates = new By[]{
+                // Locators based on provided HTML: <a class="btn btn-outline-light btn-lg px-4" href="/add">➕ Add New</a>
+                By.cssSelector("a.btn[href='/add']"),
+                By.xpath("//a[contains(normalize-space(), 'Add New')]"),
+                By.partialLinkText("Add New"),
+                // Original fallbacks
                 By.xpath("//button[normalize-space()='Add Task']"),
-                By.xpath("//a[normalize-space()='Add Task']"),
-                By.cssSelector("[data-testid='add-task'], [data-test='add-task']"),
-                By.xpath("//*[self::button or self::a][contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'add task')]")
+                By.cssSelector("[data-testid='add-task']")
         };
         for (By by : candidates) {
             try {
@@ -84,24 +86,5 @@ public abstract class BaseUiTest {
             } catch (Exception ignored) {}
         }
         throw new IllegalStateException("Could not locate a stable 'Add Task' control on the dashboard");
-    }
-
-    /**
-     * Ensures we are on the dashboard and clicks the Add Task control.
-     * It first attempts to wait for the Add Task button/link to be clickable on the current page; if not found,
-     * it navigates to baseUrl (/) and retries.
-     */
-    protected void goToDashboardAndClickAddTask() {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
-        try {
-            WebElement addTask = waitForAddTaskButton(wait);
-            addTask.click();
-            return;
-        } catch (Exception ignored) {}
-
-        // Fallback: navigate to dashboard root and try again
-        driver.navigate().to(baseUrl + "/");
-        WebElement addTask = waitForAddTaskButton(new WebDriverWait(driver, Duration.ofSeconds(20)));
-        addTask.click();
     }
 }

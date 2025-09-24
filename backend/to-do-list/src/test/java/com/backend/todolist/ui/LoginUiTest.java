@@ -9,7 +9,6 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -21,20 +20,13 @@ public class LoginUiTest extends BaseUiTest {
     private WebElement findUsernameField(WebDriverWait wait) {
         // Try common username/email field locators
         By[] candidates = new By[]{
-                // React typical username field
-                By.cssSelector("input[type='text']"),
-                By.xpath("//input[@placeholder='Username']"),
+                // Locators based on provided HTML
+                By.xpath("//input[@placeholder='Enter your username']"),
+                By.cssSelector("input.form-control.form-control-lg[placeholder='Enter your username']"),
                 // Fallbacks
                 By.id("username"),
                 By.name("username"),
-                By.id("email"),
-                By.name("email"),
-                By.cssSelector("input[type='email']"),
-                By.cssSelector("input[placeholder*='email' i]"),
-                By.cssSelector("input[placeholder*='username' i]"),
-                // Handle placeholders with typos like: "Enteer  your user name"
-                By.cssSelector("input[placeholder*='Enteer' i]"),
-                By.cssSelector("input[placeholder*='user name' i]")
+                By.cssSelector("input[type='text']")
         };
         for (By by : candidates) {
             try {
@@ -46,17 +38,12 @@ public class LoginUiTest extends BaseUiTest {
 
     private WebElement findPasswordField(WebDriverWait wait) {
         By[] candidates = new By[]{
-                // Provided React locators
-                By.cssSelector("input[type='password']"),
-                By.cssSelector("input.form-control.form-control-lg"),
+                // Locators based on provided HTML
                 By.xpath("//input[@placeholder='Enter your password']"),
-                By.cssSelector("input[placeholder='Enter your password']"),
+                By.cssSelector("input[type='password'][placeholder='Enter your password']"),
                 // Fallbacks
                 By.id("password"),
-                By.name("password"),
-                By.cssSelector("input[placeholder*='password' i]"),
-                // Handle placeholders with typos like: "Enteer  your password"
-                By.cssSelector("input[placeholder*='Enteer' i]")
+                By.name("password")
         };
         for (By by : candidates) {
             try {
@@ -68,16 +55,12 @@ public class LoginUiTest extends BaseUiTest {
 
     private WebElement findLoginButton(WebDriverWait wait) {
         By[] candidates = new By[]{
-                // Provided React locators
+                // Locators based on provided HTML
+                By.xpath("//button[contains(normalize-space(), 'Sign In')]"),
                 By.cssSelector("button.btn.btn-primary.btn-lg"),
-                By.xpath("//button[contains(text(), 'Sign In')]")
-                ,By.xpath("//button[contains(@class, 'btn-primary')]")
-                ,By.cssSelector("button[class*='btn-primary']"),
                 // Fallbacks
                 By.cssSelector("button[type='submit']"),
-                By.cssSelector("input[type='submit']"),
-                By.xpath("//button[normalize-space()='Login' or normalize-space()='Sign In']"),
-                By.xpath("//input[@type='submit' and (@value='Login' or @value='Sign In')]")
+                By.xpath("//button[normalize-space()='Login']")
         };
         for (By by : candidates) {
             try {
@@ -88,7 +71,7 @@ public class LoginUiTest extends BaseUiTest {
     }
 
     @Test
-    @DisplayName("Login: successful login shows dashboard and allows clicking 'Add Task'")
+    @DisplayName("Login: successful login shows dashboard")
     void testSuccessfulLogin() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(12));
 
@@ -109,9 +92,8 @@ public class LoginUiTest extends BaseUiTest {
         WebElement submit = findLoginButton(wait);
         submit.click();
 
-        // 4) Post-login: use the same robust flow as AddTaskUiTest
-        // This method first tries to find the Add Task button on the current page;
-        // if not found, it navigates to baseUrl (/) and retries.
-        super.goToDashboardAndClickAddTask();
+        // 4) Post-login: verify that the 'Add Task' button is visible, which indicates a successful login.
+        WebElement addTaskButton = super.waitForAddTaskButton(wait);
+        assertTrue(addTaskButton.isDisplayed());
     }
 }
