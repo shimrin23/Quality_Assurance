@@ -59,7 +59,20 @@ public class AddTaskUiTest extends BaseUiTest {
             submit.click();
 
             // Wait until we leave /signin
-            wait.until(drv -> !drv.getCurrentUrl().contains("/signin"));
+            try {
+                wait.until(drv -> !drv.getCurrentUrl().contains("/signin"));
+            } catch (Exception e) {
+                // If the URL didn't change, check for a login error message to provide a better failure reason.
+                try {
+                    WebElement errorElement = driver.findElement(By.cssSelector(".alert-danger, .error-message, [role='alert']"));
+                    if (errorElement.isDisplayed()) {
+                        throw new IllegalStateException("Login failed. Error message found: " + errorElement.getText(), e);
+                    }
+                } catch (Exception ignored) {
+                    // No error message found, re-throw original exception.
+                }
+                throw new IllegalStateException("Login failed. Timed out waiting to leave the /signin page, and no error message was found.", e);
+            }
         }
     }
 
@@ -168,7 +181,17 @@ public class AddTaskUiTest extends BaseUiTest {
                 success = !matches.isEmpty();
             } catch (Exception ignored) {}
         }
-
-        assertTrue(success, "Expected to see evidence that the task was added successfully");
+        
+        // If none of the success conditions were met, check for a failure message before asserting.
+        if (!success) {
+            try {
+                WebElement errorElement = driver.findElement(By.cssSelector(".alert-danger, .error-message, [role='alert']"));
+                if (errorElement.isDisplayed()) {
+                    // Fail fast with a clear error message from the UI
+                    throw new IllegalStateException("Task creation failed. Error message found: " + errorElement.getText());
+                }
+            } catch (Exception ignored) {}
+        }
+        assertTrue(success, "Task creation failed. Expected a success message, a redirect, or the new task to appear in the list, but none were found.");
     }
 }

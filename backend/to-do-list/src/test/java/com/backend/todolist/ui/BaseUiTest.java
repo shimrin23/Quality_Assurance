@@ -37,7 +37,8 @@ public abstract class BaseUiTest {
 
         baseUrl = System.getProperty("baseUrl", "http://localhost:3000");
         defaultUsername = System.getProperty("ui.username", "test9");
-        defaultPassword = System.getProperty("ui.password", "test9@123");
+        // Use the correct default password with capital 'T'
+        defaultPassword = System.getProperty("ui.password", "Test9@123");
 
         // Setup ChromeDriver via WebDriverManager
         WebDriverManager.chromedriver().setup();

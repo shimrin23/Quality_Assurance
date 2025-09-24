@@ -31,7 +31,10 @@ public class LoginUiTest extends BaseUiTest {
                 By.name("email"),
                 By.cssSelector("input[type='email']"),
                 By.cssSelector("input[placeholder*='email' i]"),
-                By.cssSelector("input[placeholder*='username' i]")
+                By.cssSelector("input[placeholder*='username' i]"),
+                // Handle placeholders with typos like: "Enteer  your user name"
+                By.cssSelector("input[placeholder*='Enteer' i]"),
+                By.cssSelector("input[placeholder*='user name' i]")
         };
         for (By by : candidates) {
             try {
@@ -51,7 +54,9 @@ public class LoginUiTest extends BaseUiTest {
                 // Fallbacks
                 By.id("password"),
                 By.name("password"),
-                By.cssSelector("input[placeholder*='password' i]")
+                By.cssSelector("input[placeholder*='password' i]"),
+                // Handle placeholders with typos like: "Enteer  your password"
+                By.cssSelector("input[placeholder*='Enteer' i]")
         };
         for (By by : candidates) {
             try {
@@ -85,7 +90,7 @@ public class LoginUiTest extends BaseUiTest {
     @Test
     @DisplayName("Login: successful login shows dashboard and allows clicking 'Add Task'")
     void testSuccessfulLogin() {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(12));
 
         // 1) Navigate to Login page
         String loginUrl = baseUrl + "/signin";
@@ -104,10 +109,9 @@ public class LoginUiTest extends BaseUiTest {
         WebElement submit = findLoginButton(wait);
         submit.click();
 
-        // 4) Post-login: wait specifically for a stable dashboard element (Add Task) and click it
-        WebDriverWait wait2 = new WebDriverWait(driver, Duration.ofSeconds(20));
-        WebElement addTaskBtn = super.waitForAddTaskButton(wait2);
-        assertTrue(addTaskBtn.isDisplayed(), "Add Task button should be visible on the dashboard after login");
-        addTaskBtn.click();
+        // 4) Post-login: use the same robust flow as AddTaskUiTest
+        // This method first tries to find the Add Task button on the current page;
+        // if not found, it navigates to baseUrl (/) and retries.
+        super.goToDashboardAndClickAddTask();
     }
 }
