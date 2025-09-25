@@ -14,11 +14,19 @@ public class StepDefinitions {
     @Autowired
     private TaskService service; // Spring will inject this
 
-    @Before // This is a Cucumber hook, not JUnit
+    /**
+     * This Cucumber hook runs before each scenario to ensure a clean state.
+     */
+    @Before
+    public void cleanDatabase() {
+        service.clearTasks();
+    }
+
     @Given("the task list is empty")
     public void the_task_list_is_empty() {
-        // Instead of creating a new service, we'll clear the existing one before each scenario
-        service.clearTasks();
+        // The @Before hook should have already cleared the tasks.
+        // This step now serves as an explicit verification.
+        assertEquals(0, service.getTaskCount());
     }
 
     @When("I add a task named {string}")
