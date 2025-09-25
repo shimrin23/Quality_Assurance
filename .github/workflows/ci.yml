@@ -16,9 +16,17 @@ jobs:
         env:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: todolist
+          MYSQL_USER: testuser
+          MYSQL_PASSWORD: testpass
         ports:
           - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+        # Add a delay to ensure MySQL is fully ready
+        timeout-minutes: 5
 
     steps:
       - uses: actions/checkout@v4
@@ -37,24 +45,35 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
             
-      - name: Verify pom.xml location
+      - name: Wait for MySQL to be ready
         run: |
-          echo "Current directory: $(pwd)"
-          echo "Checking if pom.xml exists in backend/to-do-list/"
-          ls -la backend/to-do-list/pom.xml || echo "pom.xml not found"
-      
-      - name: Build and run unit tests
-        run: mvn clean test -DskipITs=true
-        working-directory: ./backend/to-do-list
-        env:
-          SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/todolist
-          SPRING_DATASOURCE_USERNAME: root
-          SPRING_DATASOURCE_PASSWORD: root
+          for i in {1..30}; do
+            if mysqladmin ping -h"127.0.0.1" -uroot -proot --silent; then
+              echo "MySQL is ready!"
+              break
+            else
+              echo "Waiting for MySQL... attempt $i"
+              sleep 2
+            fi
+          done
           
-      - name: Run integration tests
-        run: mvn verify -DskipUnitTests=true
+      - name: Verify database connectivity
+        run: |
+          mysql -h 127.0.0.1 -u root -proot -e "SHOW DATABASES;"
+          mysql -h 127.0.0.1 -u root -proot -e "USE todolist; SHOW TABLES;"
+      
+      - name: Build and run unit tests with detailed logging
+        run: mvn clean test -DskipITs=true -e -X
         working-directory: ./backend/to-do-list
         env:
-          SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/todolist
+          SPRING_DATASOURCE_URL: jdbc:mysql://127.0.0.1:3306/todolist?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
           SPRING_DATASOURCE_USERNAME: root
           SPRING_DATASOURCE_PASSWORD: root
+          SPRING_PROFILES_ACTIVE: test
+          
+      - name: Check test reports if tests fail
+        if: failure()
+        run: |
+          echo "=== Surefire reports ==="
+          find target/surefire-reports -name "*.txt" -exec cat {} \;
+        working-directory: ./backend/to-do-list
