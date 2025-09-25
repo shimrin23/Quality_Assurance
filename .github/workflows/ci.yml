@@ -37,8 +37,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
             
+      - name: Verify pom.xml location
+        run: |
+          echo "Current directory: $(pwd)"
+          echo "Checking if pom.xml exists in backend/to-do-list/"
+          ls -la backend/to-do-list/pom.xml || echo "pom.xml not found"
+      
       - name: Build and run unit tests
         run: mvn clean test -DskipITs=true
+        working-directory: ./backend/to-do-list
         env:
           SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/todolist
           SPRING_DATASOURCE_USERNAME: root
@@ -46,6 +53,7 @@ jobs:
           
       - name: Run integration tests
         run: mvn verify -DskipUnitTests=true
+        working-directory: ./backend/to-do-list
         env:
           SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/todolist
           SPRING_DATASOURCE_USERNAME: root
