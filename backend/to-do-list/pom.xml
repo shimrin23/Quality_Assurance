@@ -176,6 +176,20 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>pre-integration-test</id>
+                        <goals>
+                            <goal>start</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>post-integration-test</id>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                    </execution>
+                </executions>
 			</plugin>
 			<!-- ✅ Ensure JUnit 5 tests run correctly in CI and locally -->
 			<plugin>
@@ -184,6 +198,9 @@
 				<version>3.2.5</version>
 				<configuration>
 					<useModulePath>false</useModulePath>
+                    <excludes>
+                        <exclude>**/ui/**/*.java</exclude>
+                    </excludes>
 					<systemPropertyVariables>
 						<!-- Allow overriding base URL and credentials in CI -->
 						<baseUrl>${baseUrl}</baseUrl>
@@ -192,6 +209,30 @@
 					</systemPropertyVariables>
 				</configuration>
 			</plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>3.2.5</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <useModulePath>false</useModulePath>
+                    <includes>
+                        <include>**/ui/**/*.java</include>
+                    </includes>
+                    <systemPropertyVariables>
+                        <baseUrl>http://localhost:${spring-boot.run.port}</baseUrl>
+                        <ui.username>${ui.username}</ui.username>
+                        <ui.password>${ui.password}</ui.password>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
 		</plugins>
 	</build>
 </project>
