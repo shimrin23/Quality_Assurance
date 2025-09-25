@@ -10,12 +10,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        # This working directory is relative to the repository root where the .github folder is now located.
-        # It points to your 'to-do-list' project within the 'backend' directory.
-        working-directory: ./backend/to-do-list
-
+    
     steps:
     - uses: actions/checkout@v3
     - name: Set up JDK 17
@@ -24,16 +19,17 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         cache: maven
-        java-package: jdk
-        check-latest: false
-        server-id: github
-        server-username: GITHUB_ACTOR
-        server-password: GITHUB_TOKEN
-        overwrite-settings: true
-        job-status: success
-        token: ${{ secrets.GITHUB_TOKEN }} # Use the built-in GITHUB_TOKEN secret
 
     - name: Build with Maven
-      run: mvn clean install
+      working-directory: ./backend/to-do-list
+      run: mvn clean package
+
+    - name: Start Application
+      working-directory: ./backend/to-do-list
+      run: |
+        java -jar target/*.jar &
+        sleep 10 # Give the application time to start
+
     - name: Test with Maven
-      run: mvn test
+      working-directory: ./backend/to-do-list
+      run: mvn -DbaseUrl=http://localhost:8080 test
