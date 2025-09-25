@@ -1,148 +1,52 @@
-name: Java CI/CD
+name: CI
 
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-  workflow_dispatch:
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-
+    
     services:
       mysql:
         image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: todolist
-          MYSQL_USER: testuser
-          MYSQL_PASSWORD: testpass
         ports:
           - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping -h localhost -u root -proot"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
-
-      selenium:
-        image: selenium/standalone-chrome:latest
-        ports:
-          - 4444:4444
-        options: >-
-          --health-cmd="curl -f http://localhost:4444/status || exit 1"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
-
-    env:
-      SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/todolist
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root
-      SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
-      SPRING_PROFILES_ACTIVE: test
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
+      - uses: actions/checkout@v4
+      
       - name: Set up JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: 'maven'
-
-      - name: Wait for MySQL to be ready
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y mysql-client
-          for i in {1..30}; do
-            if mysqladmin ping -h 127.0.0.1 -P 3306 -uroot -proot --silent; then
-              echo "MySQL is ready!"
-              break
-            fi
-            echo "Waiting for MySQL... Attempt $i"
-            sleep 2
-          done
-          # Initialize database schema if needed
-          mysql -h 127.0.0.1 -P 3306 -uroot -proot todolist -e "SELECT 1;" || exit 1
-
-      - name: Wait for Selenium to be ready
-        run: |
-          for i in {1..30}; do
-            if curl -s http://localhost:4444/status | grep -q "ready"; then
-              echo "Selenium is ready!"
-              break
-            fi
-            echo "Waiting for Selenium... Attempt $i"
-            sleep 2
-          done
-
-      - name: Build with Maven (including tests)
-        working-directory: ./backend/to-do-list
-        run: |
-          mvn clean compile test-compile -DskipTests
-
-      - name: Run Unit Tests
-        working-directory: ./backend/to-do-list
-        run: |
-          mvn test -DbaseUrl=http://localhost:8080 -Dspring.profiles.active=test
+          distribution: temurin
+          java-version: 17
+          
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+            
+      - name: Build and run unit tests
+        run: mvn clean test -DskipITs=true
         env:
           SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/todolist
           SPRING_DATASOURCE_USERNAME: root
           SPRING_DATASOURCE_PASSWORD: root
-
-      - name: Start Spring Boot Application
-        working-directory: ./backend/to-do-list
-        run: |
-          # Build the JAR file first
-          mvn clean package -DskipTests
-          # Start the application in background
-          java -jar target/*.jar --server.port=8080 --spring.profiles.active=test &
-          echo $! > app.pid
-          # Wait for app to start
-          for i in {1..60}; do
-            if curl -s -f http://localhost:8080/actuator/health > /dev/null; then
-              echo "Application started successfully!"
-              break
-            fi
-            echo "Waiting for application to start... Attempt $i"
-            sleep 5
-          done
-
-      - name: Run Integration/Automation Tests
-        working-directory: ./backend/to-do-list
-        run: |
-          mvn verify -DskipUnitTests -DbaseUrl=http://localhost:8080 -Dspring.profiles.active=test
+          
+      - name: Run integration tests
+        run: mvn verify -DskipUnitTests=true
         env:
           SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/todolist
           SPRING_DATASOURCE_USERNAME: root
           SPRING_DATASOURCE_PASSWORD: root
-
-      - name: Stop Application
-        if: always()
-        working-directory: ./backend/to-do-list
-        run: |
-          if [ -f app.pid ]; then
-            kill $(cat app.pid) || true
-            rm -f app.pid
-          fi
-
-      - name: Upload Test Results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: test-reports
-          path: |
-            ./backend/to-do-list/target/surefire-reports/
-            ./backend/to-do-list/target/failsafe-reports/
-          retention-days: 30
-
-      - name: Test Summary
-        uses: test-summary/action@v2
-        if: always()
-        with:
-          paths: ./backend/to-do-list/target/surefire-reports/*.xml
