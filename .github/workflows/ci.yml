@@ -1,3 +1,4 @@
+# Trigger CI
 name: Java CI/CD
 
 on:
