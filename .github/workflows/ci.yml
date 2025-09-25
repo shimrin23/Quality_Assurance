@@ -23,6 +23,8 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
       - name: Build and test
+        working-directory: ./backend/to-do-list
         run: mvn -B -DskipITs=true test
       - name: Integration tests (API, Selenium)
+        working-directory: ./backend/to-do-list
         run: mvn -B -Dheadless=true verify
