@@ -20,16 +20,7 @@ import com.backend.todolist.errorhandler.CustomException;
 import com.backend.todolist.model.Todo;
 import com.backend.todolist.service.TodoService;
 
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-
 @RestController
-@ApiResponses(value = {
-        @ApiResponse(code=400, message = "Bad Request", response = CustomException.class),
-        @ApiResponse(code=401, message = "Unauthorized", response = CustomException.class),
-        @ApiResponse(code=403, message = "Forbidden", response = CustomException.class),
-        @ApiResponse(code=404, message = "Not Found", response = CustomException.class)
- })
 public class TodoController {
 	@Autowired
 	private TodoService todoService;
