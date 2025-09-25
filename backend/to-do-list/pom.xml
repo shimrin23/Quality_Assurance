@@ -169,6 +169,9 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<jvmArguments>-Dspring.profiles.active=test</jvmArguments>
+				</configuration>
                 <executions>
                     <execution>
                         <id>pre-integration-test</id>

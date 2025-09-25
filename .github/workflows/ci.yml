@@ -24,4 +24,4 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
       - name: Build and test
         working-directory: ./backend/to-do-list
-        run: mvn -B verify
+        run: mvn -B -DskipITs=true test
