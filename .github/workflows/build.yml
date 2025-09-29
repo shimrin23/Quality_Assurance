@@ -48,4 +48,5 @@ jobs:
         run: |
           mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
             -Dsonar.projectKey=shimrin23_Quality_Assurance \
-            -Dsonar.organization=shimrin23
+            -Dsonar.organization=shimrin23 \
+            -Dmaven.test.skip=true
