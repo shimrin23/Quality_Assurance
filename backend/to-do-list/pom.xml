@@ -16,6 +16,7 @@
 		<mysql.version>8.0.33</mysql.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
+		<sonar.organization>shimrin23</sonar.organization>
 	</properties>
 	<groupId>com.backend</groupId>
 	<artifactId>to-do-list</artifactId>
