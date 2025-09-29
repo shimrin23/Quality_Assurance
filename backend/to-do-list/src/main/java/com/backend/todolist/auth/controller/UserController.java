@@ -33,6 +33,8 @@ public class UserController {
 
 	@PostMapping("/signup")
     public ResponseEntity<UserSignupResponse> signup(@Valid @RequestBody UserSignupRequest userSignupRequest) {
-		return new ResponseEntity<>(userService.signup(userSignupRequest), HttpStatus.OK);
+		// The service layer should handle the logic of checking if a user exists.
+		// For a new user, returning HTTP 201 Created is more semantically correct.
+		return new ResponseEntity<>(userService.signup(userSignupRequest), HttpStatus.CREATED);
     }
 }
