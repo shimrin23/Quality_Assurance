@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      #1️⃣ Checkout repo
+      # 1️⃣ Checkout repo
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -24,7 +24,7 @@ jobs:
           java-version: 17
           distribution: 'zulu'
 
-      # 3️⃣ Cache SonarQube packages
+      # 3️⃣ Cache SonarCloud packages
       - name: Cache SonarQube packages
         uses: actions/cache@v4
         with:
@@ -42,12 +42,11 @@ jobs:
 
       # 5️⃣ Build and run SonarCloud analysis
       - name: Build and analyze backend
-        working-directory: ./backend/to-do-list
+        working-directory: ./backend/to-do-list   # <--- Correct folder
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}   # Needed for PR decoration
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}     # Your Sonar token
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
             -Dsonar.projectKey=shimrin23_Quality_Assurance \
             -Dsonar.organization=shimrin23 \
-            -Dsonar.host.url=https://sonarcloud.io
+     	#-Dmaven.test.skip=true
