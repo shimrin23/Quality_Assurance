@@ -1,52 +1,43 @@
-name: SonarQube Analysis
+name: Build, Test and Analyze
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    types: [opened, synchronize, reopened]
+    branches: [ main ]
 
 jobs:
   build:
+    name: Build, Test and Analyze
     runs-on: ubuntu-latest
-
     steps:
-      # 1️⃣ Checkout repo
       - uses: actions/checkout@v4
         with:
+          # SonarCloud needs a full clone to analyze history on pull requests.
           fetch-depth: 0
-
-      # 2️⃣ Set up JDK 17
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: 17
-          distribution: 'zulu'
-
-      # 3️⃣ Cache SonarCloud packages
-      - name: Cache SonarQube packages
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Cache SonarCloud packages
         uses: actions/cache@v4
         with:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
-
-      # 4️⃣ Cache Maven packages
       - name: Cache Maven packages
         uses: actions/cache@v4
         with:
           path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('backend/to-do-list/pom.xml') }}
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
-
-      # 5️⃣ Build and run SonarCloud analysis
-      - name: Build and analyze backend
-        working-directory: ./backend/to-do-list   # <--- Correct folder
+      - name: Build, Test, and Analyze with SonarCloud
+        working-directory: ./backend/to-do-list
+        # This single command runs tests, generates the coverage report, and sends it to SonarCloud.
+        # The `verify` goal ensures the JaCoCo report is generated before the `sonar:sonar` goal runs.
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=shimrin23_to-do-list
         env:
+          # Needed to authenticate with SonarCloud. Create this in your GitHub repository settings.
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-            -Dsonar.projectKey=shimrin23_Quality_Assurance \
-            -Dsonar.organization=shimrin23 \
-            -Dmaven.test.skip=true
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Automatically provided by GitHub Actions
