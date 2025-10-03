@@ -38,3 +38,4 @@ public class UserController {
 		return new ResponseEntity<>(userService.signup(userSignupRequest), HttpStatus.CREATED);
     }
 }
+

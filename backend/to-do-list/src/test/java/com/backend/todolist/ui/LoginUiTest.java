@@ -11,10 +11,6 @@ import java.time.Duration;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/**
- * Selenium UI test that verifies the Login flow.
- * It tries multiple sensible locators so it can adapt to minor UI differences.
- */
 public class LoginUiTest extends BaseUiTest {
 
     private WebElement findUsernameField(WebDriverWait wait) {
@@ -91,8 +87,6 @@ public class LoginUiTest extends BaseUiTest {
         // 3) Submit
         WebElement submit = findLoginButton(wait);
         submit.click();
-
-        // 4) Post-login: verify that the 'Add Task' button is visible, which indicates a successful login.
         WebElement addTaskButton = super.waitForAddTaskButton(wait);
         assertTrue(addTaskButton.isDisplayed());
     }

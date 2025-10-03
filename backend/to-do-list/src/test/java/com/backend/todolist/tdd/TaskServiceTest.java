@@ -1,8 +1,9 @@
 package com.backend.todolist.tdd;
 
-import com.backend.todolist.Task;
-import com.backend.todolist.TaskRepository;
-import com.backend.todolist.TaskService;
+import com.backend.todolist.entity.Task;
+import com.backend.todolist.repository.TaskRepository;
+import com.backend.todolist.service.TaskService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -13,8 +14,39 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+//--------------------------------------------------------------
+//                  Red Phase
+
+
+//@Test
+//void addTask_increasesTaskCount() {
+//    TaskService service = new TaskService();
+//    service.addTask("Test Task");
+//    assertEquals(1, service.getTaskCount()); // This will fail (TaskService not implemented yet)
+//}
+
+
+//--------------------------------------------------------------
+//              Green Phase
+
+
+//class TaskServiceTest {
+//
+//    @Test
+//    void addTask_increasesTaskCount() {
+//        TaskService service = new TaskService();
+//        service.addTask("Test Task");
+//        assertEquals(1, service.getTaskCount());
+//    }
+//}
+
+
+//--------------------------------------------------------------
+//                  Refactor Phase
+
 @ExtendWith(MockitoExtension.class)
-class TaskServiceTest {
+class
+TaskServiceTest {
 
     @Mock
     private TaskRepository taskRepository;
@@ -22,28 +54,17 @@ class TaskServiceTest {
     @InjectMocks
     private TaskService taskService;
 
-    @Test
-    void addTask_shouldSaveTaskToRepository() {
-        // Given a new task
-        Task task = new Task("Test Task");
-
-        // When the task is added
-        taskService.addTask(task);
-
-        // Then the repository's save method should be called with that task
-        verify(taskRepository).save(task);
+    @BeforeEach
+    void setUp() {
     }
 
     @Test
-    void getTaskCount_shouldReturnCountFromRepository() {
-        // Given the repository reports a certain number of tasks
-        long expectedCount = 5L;
-        when(taskRepository.count()).thenReturn(expectedCount);
-
-        // When the task count is requested
-        long actualCount = taskService.getTaskCount();
-
-        // Then the service should return the count from the repository
-        assertEquals(expectedCount, actualCount);
+    void addTask_increasesTaskCount() {
+        // Arrange
+        Task task = new Task("Test Task");
+        when(taskRepository.count()).thenReturn(1L);
+        taskService.addTask(task);
+        assertEquals(1, taskService.getTaskCount());
+        verify(taskRepository).save(task);
     }
 }
