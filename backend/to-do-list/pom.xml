@@ -17,7 +17,6 @@
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 		<sonar.organization>shimrin23</sonar.organization>
-		<sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 	</properties>
 	<groupId>com.backend</groupId>
 	<artifactId>to-do-list</artifactId>
