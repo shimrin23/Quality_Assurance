@@ -44,10 +44,10 @@ jobs:
       - name: Build and analyze backend
         working-directory: ./backend/to-do-list
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}   # ✅ Added for PR decoration
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}     # already correct
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}   # Needed for PR decoration
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}     # Your Sonar token
         run: |
           mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
             -Dsonar.projectKey=shimrin23_Quality_Assurance \
             -Dsonar.organization=shimrin23 \
-            -Dsonar.host.url=https://sonarcloud.io    # ✅ Explicit host url added
+            -Dsonar.host.url=https://sonarcloud.io
